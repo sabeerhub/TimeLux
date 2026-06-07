@@ -1,25 +1,22 @@
 {
-  "name": "time-ng-api",
+  "name": "timelux-api",
   "version": "1.0.0",
-  "description": "TIME-NG Luxury Watch Platform — REST API",
+  "description": "TimeLux API",
   "main": "src/server.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "migrate": "node migrations/run.js",
-    "migrate:rollback": "node migrations/rollback.js",
-    "test": "jest --runInBand"
+    "migrate": "node migrations/run.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.2.0",
+    "cloudinary": "1.41.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.1",
-    "express-slow-down": "^2.0.1",
     "helmet": "^7.1.0",
     "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.2",
@@ -31,9 +28,7 @@
     "winston": "^3.13.0"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.4",
-    "supertest": "^7.0.0"
+    "nodemon": "^3.1.4"
   },
   "engines": {
     "node": ">=18.0.0"
