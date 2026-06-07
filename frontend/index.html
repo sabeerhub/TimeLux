@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>TimeLux — Precision. Elegance. Legacy.</title>
+  <meta name="description" content="The most premium destination for luxury watches in Nigeria."/>
+  <link rel="stylesheet" href="src/styles/apple.css"/>
+  <style>
+    body{overflow:hidden;height:100dvh;display:flex;flex-direction:column}
+    .landing-nav{display:flex;align-items:center;justify-content:space-between;padding:var(--s4) var(--s6);border-bottom:1px solid transparent}
+    .landing-brand{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+    .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:var(--s6);gap:var(--s8)}
+    .hero-eyebrow{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--text-tertiary);animation:fadeUp .8s var(--ease) both}
+    .hero-title{font-size:clamp(2.5rem,8vw,5.5rem);font-weight:600;letter-spacing:-.04em;line-height:1;color:var(--text-primary);animation:fadeUp .8s var(--ease) .1s both}
+    .hero-sub{font-size:clamp(var(--text-md),2.5vw,var(--text-lg));font-weight:400;color:var(--text-secondary);max-width:460px;line-height:1.5;animation:fadeUp .8s var(--ease) .2s both}
+    .hero-cta{animation:fadeUp .8s var(--ease) .3s both}
+    .hero-cta .btn{min-width:180px}
+    .hero-line{width:1px;height:48px;background:var(--border);animation:fadeIn 1.2s ease .6s both}
+    .hero-footer{font-size:var(--text-xs);color:var(--text-tertiary);letter-spacing:.04em;animation:fadeUp .8s var(--ease) .4s both}
+  </style>
+</head>
+<body>
+
+  <nav class="landing-nav">
+    <span class="landing-brand">TimeLux</span>
+    <a href="auth.html" class="btn btn-primary btn-sm">Login</a>
+  </nav>
+
+  <main class="hero">
+    <p class="hero-eyebrow">Luxury Timepieces · Nigeria</p>
+    <h1 class="hero-title">TimeLux</h1>
+    <p class="hero-sub">A curated selection of the world's finest watches, available exclusively in Nigeria.</p>
+    <div class="hero-cta">
+      <a href="auth.html" class="btn btn-primary btn-lg">Enter Store</a>
+    </div>
+    <div class="hero-line"></div>
+    <p class="hero-footer">Authentication required · Premium experience</p>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="src/utils/core.js"></script>
+  <script>
+    // If already authenticated redirect to shop
+    AuthGuard.check().then(ok => { if (ok) location.replace('shop.html'); });
+  </script>
+</body>
+</html>

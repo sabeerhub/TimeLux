@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Watches — TimeLux Admin</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="stylesheet" href="../src/styles/apple.css"/>
+  <link rel="stylesheet" href="../src/styles/admin.css"/>
+</head>
+<body style="background:var(--bg-secondary)">
+
+<div class="admin-layout">
+  <div id="layout-shell"></div>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <h1 class="page-title">Watches</h1>
+      <button class="btn btn-primary btn-sm" onclick="DrawerCtrl.open()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Watch
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search" placeholder="Search watches…" oninput="filterProducts()"/>
+      </div>
+      <select class="toolbar-select" id="stock-filter" onchange="filterProducts()">
+        <option value="">All Stock</option>
+        <option value="low">Low Stock (≤2)</option>
+        <option value="out">Sold Out</option>
+      </select>
+    </div>
+
+    <div class="panel animate-fade-up">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr>
+            <th>Watch</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th class="hide-mobile">Status</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="products-tbody">
+            <tr><td colspan="5" style="padding:var(--s10)">
+              <div class="skeleton" style="height:200px;border-radius:var(--r-lg)"></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="handleOverlayClick(event)">
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h2 class="drawer-title" id="drawer-title">Add Watch</h2>
+      <button class="drawer-close" onclick="DrawerCtrl.close()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form class="drawer-form" id="watch-form">
+      <input type="hidden" id="edit-id"/>
+      <div class="field">
+        <label class="field-label">Watch Images (max 6)</label>
+        <div class="img-upload-area" onclick="document.getElementById('img-input').click()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <p style="font-size:var(--text-sm);color:var(--text-secondary);margin-top:var(--s2)">Click to upload images</p>
+          <p style="font-size:var(--text-xs);color:var(--text-tertiary)">JPG, PNG, WebP · Max 5MB each</p>
+        </div>
+        <input type="file" id="img-input" multiple accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewImgs()"/>
+        <div class="img-previews" id="img-previews"></div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Brand</label>
+          <select class="field-input" id="f-brand" required>
+            <option value="">Select brand</option>
+            ${['Patek Philippe','Rolex','Audemars Piguet','Richard Mille','Franck Muller','Hublot','IWC','Omega'].map(b=>`<option>${b}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Watch Name</label>
+          <input class="field-input" id="f-name" type="text" placeholder="Nautilus 5711/1R" required/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label class="field-label">Price (₦)</label><input class="field-input" id="f-price" type="number" placeholder="85000000" min="0" required/></div>
+        <div class="field"><label class="field-label">Stock Qty</label><input class="field-input" id="f-stock" type="number" placeholder="1" min="0" required/></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Category</label>
+        <select class="field-input" id="f-category">
+          <option value="">Select category</option>
+          ${['Dress Watch','Sports Watch','Diver\'s Watch','Chronograph','Tourbillon','Complications'].map(c=>`<option>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="field"><label class="field-label">Movement</label><input class="field-input" id="f-movement" type="text" placeholder="Automatic"/></div>
+        <div class="field"><label class="field-label">Case Size (mm)</label><input class="field-input" id="f-case-size" type="number" placeholder="40" step="0.1"/></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label class="field-label">Case Material</label><input class="field-input" id="f-material" type="text" placeholder="Rose Gold"/></div>
+        <div class="field"><label class="field-label">Water Resistance</label><input class="field-input" id="f-water" type="text" placeholder="120m"/></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Description</label>
+        <textarea class="field-input" id="f-desc" rows="4" placeholder="Describe the watch…" style="resize:vertical;line-height:1.5"></textarea>
+      </div>
+      <label style="display:flex;align-items:center;gap:var(--s3);font-size:var(--text-sm);cursor:pointer">
+        <input type="checkbox" id="f-featured" style="width:16px;height:16px;cursor:pointer"/>
+        Feature this watch on homepage
+      </label>
+      <div id="drawer-err" style="color:var(--error);font-size:var(--text-sm);display:none"></div>
+      <div class="drawer-footer">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="DrawerCtrl.close()">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex:2" id="save-btn">Save Watch</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../config.js"></script>
+  <script src="../src/utils/core.js"></script>
+<script src="../src/utils/admin-core.js"></script>
+<script>
+let allProducts = [], editingId = null;
+
+(async () => {
+  const ok = await AuthGuard.requireAdmin();
+  if (!ok) return;
+  document.getElementById('layout-shell').outerHTML = AdminLayout.render('watches');
+  await loadProducts();
+})();
+
+async function loadProducts() {
+  try {
+    allProducts = await api.get('/products?limit=200&sort=created_at&order=desc');
+    renderTable(allProducts);
+  } catch(err) { Toast.show(err.message,'error'); }
+}
+
+function renderTable(list) {
+  const tb = document.getElementById('products-tbody');
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:var(--s10);color:var(--text-secondary)">No watches found.</td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map(p => `
+    <tr>
+      <td>
+        <div class="product-cell">
+          <div class="product-thumb">${p.images?.[0]?.url?`<img src="${p.images[0].url}" alt="" loading="lazy"/>`:''}  </div>
+          <div><p class="product-cell-name">${p.name}</p><p class="product-cell-brand">${p.brand_name||''}</p></div>
+        </div>
+      </td>
+      <td>${fmt.naira(p.price)}</td>
+      <td>
+        <span class="badge ${p.stock_qty===0?'badge-error':p.stock_qty<=2?'badge-warning':'badge-success'}">
+          ${p.stock_qty===0?'Sold Out':p.stock_qty+' left'}
+        </span>
+      </td>
+      <td class="hide-mobile">
+        <span class="badge ${p.is_active!==false?'badge-success':'badge-neutral'}">${p.is_active!==false?'Active':'Hidden'}</span>
+      </td>
+      <td>
+        <div class="table-actions">
+          <button class="action-btn" onclick="DrawerCtrl.openEdit('${p.id}')" title="Edit">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="action-btn delete" onclick="deleteProduct('${p.id}','${p.name.replace(/'/g,"\\'")}')" title="Delete">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterProducts() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const s = document.getElementById('stock-filter').value;
+  renderTable(allProducts.filter(p => {
+    const mq = !q || p.name.toLowerCase().includes(q) || (p.brand_name||'').toLowerCase().includes(q);
+    const ms = !s || (s==='low'&&p.stock_qty>0&&p.stock_qty<=2) || (s==='out'&&p.stock_qty===0);
+    return mq && ms;
+  }));
+}
+
+const DrawerCtrl = {
+  open() {
+    editingId = null;
+    document.getElementById('drawer-title').textContent = 'Add Watch';
+    document.getElementById('save-btn').textContent = 'Save Watch';
+    document.getElementById('watch-form').reset();
+    document.getElementById('img-previews').innerHTML = '';
+    document.getElementById('drawer-err').style.display = 'none';
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  },
+  openEdit(id) {
+    const p = allProducts.find(x=>x.id===id);
+    if (!p) return;
+    editingId = id;
+    document.getElementById('drawer-title').textContent = 'Edit Watch';
+    document.getElementById('save-btn').textContent = 'Update Watch';
+    document.getElementById('edit-id').value = id;
+    document.getElementById('f-name').value = p.name||'';
+    document.getElementById('f-price').value = p.price||'';
+    document.getElementById('f-stock').value = p.stock_qty||0;
+    document.getElementById('f-desc').value = p.description||'';
+    document.getElementById('f-movement').value = p.movement_type||'';
+    document.getElementById('f-case-size').value = p.case_size_mm||'';
+    document.getElementById('f-material').value = p.case_material||'';
+    document.getElementById('f-water').value = p.water_resistance||'';
+    document.getElementById('f-featured').checked = !!p.is_featured;
+    document.getElementById('f-category').value = p.category||'';
+    const prev = document.getElementById('img-previews');
+    prev.innerHTML = (p.images||[]).map(i=>`<img class="img-preview" src="${i.url}" alt=""/>`).join('');
+    document.getElementById('drawer-err').style.display = 'none';
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  },
+  close() {
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    editingId = null;
+  }
+};
+window.DrawerCtrl = DrawerCtrl;
+
+function handleOverlayClick(e) { if (e.target===document.getElementById('drawer-overlay')) DrawerCtrl.close(); }
+
+function previewImgs() {
+  const files = document.getElementById('img-input').files;
+  const c = document.getElementById('img-previews');
+  c.innerHTML = '';
+  Array.from(files).slice(0,6).forEach(f => {
+    const r = new FileReader();
+    r.onload = e => { const img = document.createElement('img'); img.src=e.target.result; img.className='img-preview'; c.appendChild(img); };
+    r.readAsDataURL(f);
+  });
+}
+
+document.getElementById('watch-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn=document.getElementById('save-btn'), errEl=document.getElementById('drawer-err');
+  errEl.style.display='none'; btn.classList.add('btn-loading'); btn.disabled=true;
+  try {
+    const fd = new FormData();
+    fd.append('name', document.getElementById('f-name').value.trim());
+    fd.append('price', document.getElementById('f-price').value);
+    fd.append('stock_qty', document.getElementById('f-stock').value);
+    fd.append('description', document.getElementById('f-desc').value);
+    fd.append('category', document.getElementById('f-category').value);
+    fd.append('movement_type', document.getElementById('f-movement').value);
+    fd.append('case_size_mm', document.getElementById('f-case-size').value||'');
+    fd.append('case_material', document.getElementById('f-material').value);
+    fd.append('water_resistance', document.getElementById('f-water').value);
+    fd.append('is_featured', document.getElementById('f-featured').checked);
+    Array.from(document.getElementById('img-input').files).slice(0,6).forEach(f=>fd.append('images',f));
+    if (editingId) { await api.putForm(`/products/${editingId}`,fd); Toast.show('Watch updated.'); }
+    else { await api.postForm('/products',fd); Toast.show('Watch added.'); }
+    DrawerCtrl.close(); await loadProducts();
+  } catch(err) { errEl.textContent=err.message; errEl.style.display='block'; }
+  finally { btn.classList.remove('btn-loading'); btn.disabled=false; }
+});
+
+async function deleteProduct(id, name) {
+  if (!confirm(`Remove "${name}"? This cannot be undone.`)) return;
+  try { await api.del(`/products/${id}`); Toast.show('Watch removed.'); await loadProducts(); }
+  catch(err) { Toast.show(err.message,'error'); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Checkout — TimeLux</title>
+  <link rel="stylesheet" href="src/styles/apple.css"/>
+  <style>
+    body{background:var(--bg-secondary)}
+    .checkout-wrap{min-height:100dvh;padding:var(--s8) 0 var(--s16)}
+    .checkout-grid{display:grid;grid-template-columns:1fr 380px;gap:var(--s8);align-items:start}
+    @media(max-width:900px){.checkout-grid{grid-template-columns:1fr}}
+    .steps{display:flex;align-items:center;justify-content:center;gap:var(--s2);margin-bottom:var(--s8)}
+    .step{display:flex;align-items:center;gap:var(--s2)}
+    .step-num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-tertiary)}
+    .step-num.active{background:var(--accent);border-color:var(--accent);color:white}
+    .step-num.done{background:var(--text-primary);border-color:var(--text-primary);color:white}
+    .step-label{font-size:var(--text-xs);color:var(--text-tertiary);font-weight:500}
+    .step-label.active{color:var(--text-primary)}
+    .step-sep{width:32px;height:1px;background:var(--border)}
+    .panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s8)}
+    .panel-title{font-size:var(--text-lg);font-weight:600;letter-spacing:-.02em;margin-bottom:var(--s6)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+    .form-full{grid-column:1/-1}
+    @media(max-width:480px){.form-grid{grid-template-columns:1fr}}
+    .form-error{background:var(--error-bg);border:1px solid rgba(192,57,43,.2);border-radius:var(--r-md);padding:var(--s3) var(--s4);font-size:var(--text-sm);color:var(--error);display:none;margin-top:var(--s4)}
+    .form-error.show{display:block}
+    .review-block{background:var(--bg-secondary);border-radius:var(--r-lg);padding:var(--s4);margin-bottom:var(--s4)}
+    .review-label{font-size:var(--text-xs);color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--s2)}
+    .review-val{font-size:var(--text-sm);font-weight:500}
+    .review-val-sub{font-size:var(--text-sm);color:var(--text-secondary)}
+    .summary-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s6);position:sticky;top:calc(var(--nav-h)+var(--s4))}
+    .summary-title{font-size:var(--text-base);font-weight:600;margin-bottom:var(--s5)}
+    .s-item{display:flex;gap:var(--s3);align-items:center;padding:var(--s3) 0;border-bottom:1px solid var(--border)}
+    .s-item:last-of-type{border-bottom:none}
+    .s-img{width:52px;height:52px;border-radius:var(--r-md);background:var(--bg-tertiary);overflow:hidden;flex-shrink:0}
+    .s-img img{width:100%;height:100%;object-fit:cover}
+    .s-info{flex:1;min-width:0}
+    .s-name{font-size:var(--text-sm);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .s-qty{font-size:var(--text-xs);color:var(--text-secondary)}
+    .s-price{font-size:var(--text-sm);font-weight:500;flex-shrink:0}
+    .s-totals{margin-top:var(--s4)}
+    .s-row{display:flex;justify-content:space-between;align-items:center;padding:var(--s2) 0;font-size:var(--text-sm)}
+    .s-row-label{color:var(--text-secondary)}
+    .s-total{font-size:var(--text-md);font-weight:600;border-top:1px solid var(--border);padding-top:var(--s4);margin-top:var(--s2)}
+  </style>
+</head>
+<body>
+
+  <div id="nav-wrap"></div>
+
+  <div class="checkout-wrap">
+    <div class="container">
+      <div class="steps animate-fade-up" id="steps">
+        <div class="step"><div class="step-num active" id="sn1">1</div><span class="step-label active" id="sl1">Details</span></div>
+        <div class="step-sep"></div>
+        <div class="step"><div class="step-num" id="sn2">2</div><span class="step-label" id="sl2">Review</span></div>
+        <div class="step-sep"></div>
+        <div class="step"><div class="step-num" id="sn3">3</div><span class="step-label" id="sl3">Payment</span></div>
+      </div>
+
+      <div class="checkout-grid">
+        <div>
+          <!-- Step 1 -->
+          <div class="panel animate-fade-up delay-1" id="step-details">
+            <h2 class="panel-title">Delivery Details</h2>
+            <div class="form-grid">
+              <div class="field"><label class="field-label">Full Name</label><input class="field-input" id="f-name" type="text" placeholder="John Doe" autocomplete="name" required/></div>
+              <div class="field"><label class="field-label">Phone</label><input class="field-input" id="f-phone" type="tel" placeholder="+234 801 234 5678" autocomplete="tel" required/></div>
+              <div class="field form-full"><label class="field-label">Email</label><input class="field-input" id="f-email" type="email" placeholder="name@example.com" autocomplete="email" required/></div>
+              <div class="field form-full"><label class="field-label">Delivery Address</label><input class="field-input" id="f-address" type="text" placeholder="12 Admiralty Way, Lekki Phase 1" required/></div>
+              <div class="field"><label class="field-label">City</label><input class="field-input" id="f-city" type="text" placeholder="Lagos" required/></div>
+              <div class="field"><label class="field-label">State</label>
+                <select class="field-input" id="f-state">
+                  <option value="">Select state</option>
+                  ${['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'].map(s=>`<option>${s}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="form-error" id="form-err"></div>
+            <button class="btn btn-primary btn-full btn-lg" style="margin-top:var(--s6)" onclick="toReview()">Continue to Review</button>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="panel" id="step-review" style="display:none">
+            <h2 class="panel-title">Review Order</h2>
+            <div id="review-content"></div>
+            <div style="display:flex;gap:var(--s3);margin-top:var(--s6)">
+              <button class="btn btn-outline" onclick="toDetails()">← Edit</button>
+              <button class="btn btn-primary" style="flex:1" onclick="placeOrder()" id="pay-btn">Pay Now</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div>
+          <div class="summary-card animate-fade-up delay-2" id="summary-card"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="src/utils/core.js"></script>
+  <script>
+    let formData = {};
+
+    (async () => {
+      const ok = await AuthGuard.require();
+      if (!ok) return;
+      document.getElementById('nav-wrap').innerHTML = Nav.renderAuth();
+      Cart.updateBadge();
+
+      // Prefill
+      try {
+        const user = await api.get('/auth/me');
+        if (user) {
+          document.getElementById('f-name').value = user.full_name||'';
+          document.getElementById('f-email').value = user.email||'';
+          document.getElementById('f-phone').value = user.phone||'';
+        }
+      } catch{}
+
+      if (!Cart.items.length) {
+        document.querySelector('.checkout-grid').innerHTML =
+          `<div class="panel" style="text-align:center;padding:var(--s16)">
+            <h3 style="margin-bottom:var(--s3)">Your bag is empty</h3>
+            <a href="shop.html" class="btn btn-primary">Browse Collection</a>
+          </div>`;
+      }
+      renderSummary();
+    })();
+
+    function renderSummary() {
+      const items = Cart.items;
+      document.getElementById('summary-card').innerHTML = `
+        <h3 class="summary-title">Your Bag</h3>
+        ${items.map(i=>`
+        <div class="s-item">
+          <div class="s-img">${i.image?`<img src="${i.image}" alt=""/>`:''}  </div>
+          <div class="s-info"><p class="s-name">${i.name}</p><p class="s-qty">Qty: ${i.quantity}</p></div>
+          <p class="s-price">${fmt.naira(i.price*i.quantity)}</p>
+        </div>`).join('')}
+        <div class="s-totals">
+          <div class="s-row"><span class="s-row-label">Subtotal</span><span>${fmt.naira(Cart.total)}</span></div>
+          <div class="s-row"><span class="s-row-label">Delivery</span><span>Free</span></div>
+          <div class="s-row s-total"><span>Total</span><span>${fmt.naira(Cart.total)}</span></div>
+        </div>`;
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('form-err');
+      el.textContent = msg; el.classList.add('show');
+    }
+
+    function toReview() {
+      const name=document.getElementById('f-name').value.trim(),
+            phone=document.getElementById('f-phone').value.trim(),
+            email=document.getElementById('f-email').value.trim(),
+            address=document.getElementById('f-address').value.trim(),
+            city=document.getElementById('f-city').value.trim(),
+            state=document.getElementById('f-state').value;
+      document.getElementById('form-err').classList.remove('show');
+      if (!name||!phone||!email||!address||!city||!state) { showErr('Please fill in all fields.'); return; }
+      formData = {name,phone,email,address,city,state};
+      // activate step 2
+      const sn1=document.getElementById('sn1');
+      sn1.className='step-num done';
+      sn1.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>`;
+      document.getElementById('sn2').className='step-num active';
+      document.getElementById('sl2').className='step-label active';
+      document.getElementById('step-details').style.display='none';
+      document.getElementById('step-review').style.display='block';
+      document.getElementById('review-content').innerHTML=`
+        <div class="review-block">
+          <p class="review-label">Delivering To</p>
+          <p class="review-val">${name}</p>
+          <p class="review-val-sub">${address}, ${city}, ${state}, Nigeria</p>
+          <p class="review-val-sub">${phone} · ${email}</p>
+        </div>`;
+      document.getElementById('pay-btn').textContent = `Pay ${fmt.naira(Cart.total)}`;
+    }
+
+    function toDetails() {
+      document.getElementById('step-details').style.display='block';
+      document.getElementById('step-review').style.display='none';
+      document.getElementById('sn1').className='step-num active';
+      document.getElementById('sn1').textContent='1';
+      document.getElementById('sn2').className='step-num';
+      document.getElementById('sl2').className='step-label';
+    }
+
+    async function placeOrder() {
+      const btn = document.getElementById('pay-btn');
+      btn.classList.add('btn-loading'); btn.disabled=true;
+      try {
+        const result = await api.post('/orders', {
+          items: Cart.items.map(i=>({product_id:i.id, quantity:i.quantity})),
+          customer_info: { full_name:formData.name, email:formData.email, phone:formData.phone },
+          delivery_address: { address_line:formData.address, city:formData.city, state:formData.state, country:'Nigeria' },
+        });
+        if (result.data?.payment_url) {
+          Cart.clear();
+          location.href = result.data.payment_url;
+        } else throw new Error('Payment initialization failed.');
+      } catch(err) {
+        Toast.show(err.message,'error');
+        btn.classList.remove('btn-loading'); btn.disabled=false;
+      }
+    }
+  </script>
+</body>
+</html>

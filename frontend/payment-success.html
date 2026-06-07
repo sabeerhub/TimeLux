@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Order Confirmed — TimeLux</title>
+  <link rel="stylesheet" href="src/styles/apple.css"/>
+  <style>
+    body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg)}
+    .success-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:var(--s6);max-width:440px;width:100%}
+    .check-container{width:88px;height:88px;margin-bottom:var(--s8)}
+    .check-svg{width:88px;height:88px}
+    .check-bg{fill:var(--success-bg);opacity:0;animation:fadeIn .3s ease .1s forwards}
+    .check-circle{fill:none;stroke:var(--success);stroke-width:2.5;stroke-dasharray:264;stroke-dashoffset:264;stroke-linecap:round;transform-origin:50% 50%;transform:rotate(-90deg);animation:circleDraw .6s cubic-bezier(.4,0,.2,1) .1s forwards}
+    .check-mark{fill:none;stroke:var(--success);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:50;stroke-dashoffset:50;animation:checkmark .4s cubic-bezier(.4,0,.2,1) .7s forwards}
+    .success-label{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--success);margin-bottom:var(--s3);opacity:0;animation:fadeUp .5s ease 1s forwards}
+    .success-title{font-size:var(--text-2xl);font-weight:600;letter-spacing:-.03em;margin-bottom:var(--s4);opacity:0;animation:fadeUp .5s ease 1.1s forwards}
+    .success-sub{font-size:var(--text-md);color:var(--text-secondary);line-height:1.5;margin-bottom:var(--s8);opacity:0;animation:fadeUp .5s ease 1.2s forwards}
+    .order-ref-pill{display:inline-flex;align-items:center;gap:var(--s2);padding:var(--s3) var(--s5);background:var(--bg-tertiary);border-radius:var(--r-full);font-size:var(--text-sm);font-weight:500;margin-bottom:var(--s8);opacity:0;animation:fadeUp .5s ease 1.3s forwards}
+    .order-ref-label{color:var(--text-secondary)}
+    .success-actions{display:flex;flex-direction:column;gap:var(--s3);width:100%;opacity:0;animation:fadeUp .5s ease 1.4s forwards}
+  </style>
+</head>
+<body>
+  <div class="success-wrap">
+    <div class="check-container">
+      <svg class="check-svg" viewBox="0 0 88 88">
+        <circle class="check-bg" cx="44" cy="44" r="42"/>
+        <circle class="check-circle" cx="44" cy="44" r="42"/>
+        <polyline class="check-mark" points="26,44 38,56 62,32"/>
+      </svg>
+    </div>
+    <p class="success-label">Payment confirmed</p>
+    <h1 class="success-title">Order Placed</h1>
+    <p class="success-sub" id="success-sub">Your timepiece is being prepared. We'll notify you when it ships.</p>
+    <div class="order-ref-pill" id="order-ref-pill">
+      <span class="order-ref-label">Order</span>
+      <span id="order-ref-val">—</span>
+    </div>
+    <div class="success-actions">
+      <a href="#" class="btn btn-primary btn-full btn-lg" id="track-btn">Track My Order</a>
+      <a href="shop.html" class="btn btn-outline btn-full">Continue Shopping</a>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="src/utils/core.js"></script>
+  <script>
+    (async () => {
+      const ok = await AuthGuard.require();
+      if (!ok) return;
+      const ref = new URLSearchParams(location.search).get('ref');
+      if (ref) {
+        document.getElementById('order-ref-val').textContent = ref;
+        document.getElementById('track-btn').href = `track-order.html?ref=${ref}`;
+      } else {
+        document.getElementById('order-ref-pill').style.display = 'none';
+        document.getElementById('track-btn').href = 'track-order.html';
+      }
+    })();
+  </script>
+</body>
+</html>

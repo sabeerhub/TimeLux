@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Orders — TimeLux Admin</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="stylesheet" href="../src/styles/apple.css"/>
+  <link rel="stylesheet" href="../src/styles/admin.css"/>
+</head>
+<body style="background:var(--bg-secondary)">
+
+<div class="admin-layout">
+  <div id="layout-shell"></div>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <h1 class="page-title">Orders</h1>
+    </div>
+
+    <div class="status-tabs" id="status-tabs">
+      ${['','pending','payment_confirmed','processing','shipped','delivered'].map((s,i)=>`
+      <div class="status-tab${i===0?' active':''}" data-status="${s}" onclick="setStatus('${s}',this)">
+        ${s?s.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()):'All'}
+      </div>`).join('')}
+    </div>
+
+    <div class="panel animate-fade-up">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th class="hide-mobile">Date</th>
+          </tr></thead>
+          <tbody id="orders-tbody">
+            <tr><td colspan="5" style="padding:var(--s10)">
+              <div class="skeleton" style="height:200px;border-radius:var(--r-lg)"></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Order detail drawer -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-header">
+      <h2 class="detail-title" id="detail-title">Order Details</h2>
+      <button class="detail-close" onclick="closeDetailPanel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<script src="../config.js"></script>
+  <script src="../src/utils/core.js"></script>
+<script src="../src/utils/admin-core.js"></script>
+<script>
+let allOrders = [], currentStatus = '';
+
+(async () => {
+  const ok = await AuthGuard.requireAdmin();
+  if (!ok) return;
+  document.getElementById('layout-shell').outerHTML = AdminLayout.render('orders');
+  await loadOrders();
+  const id = new URLSearchParams(location.search).get('id');
+  if (id) { const o = allOrders.find(x=>x.id===id); if (o) openDetail(o); }
+})();
+
+async function loadOrders() {
+  try {
+    const qs = currentStatus ? `?status=${currentStatus}` : '';
+    allOrders = await api.get(`/orders/admin/all${qs}`);
+    renderTable(allOrders);
+  } catch(err) { Toast.show(err.message,'error'); }
+}
+
+function renderTable(list) {
+  const tb = document.getElementById('orders-tbody');
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:var(--s10);color:var(--text-secondary)">No orders found.</td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map(o=>`
+    <tr onclick="openDetail(allOrders.find(x=>x.id==='${o.id}'))">
+      <td style="font-weight:600">${o.order_ref}</td>
+      <td><p style="font-weight:500">${o.customer_name}</p><p style="font-size:var(--text-xs);color:var(--text-secondary)">${o.customer_email}</p></td>
+      <td>${fmt.naira(o.total_amount)}</td>
+      <td><span class="badge ${stBadge(o.status)}">${stLabel(o.status)}</span></td>
+      <td class="hide-mobile" style="color:var(--text-secondary)">${fmt.date(o.created_at)}</td>
+    </tr>`).join('');
+}
+
+function setStatus(s, el) {
+  currentStatus = s;
+  document.querySelectorAll('.status-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  loadOrders();
+}
+
+async function openDetail(order) {
+  if (!order) return;
+  try {
+    const full = await api.get(`/orders/${order.order_ref}`);
+    renderDetail(full);
+  } catch { renderDetail(order); }
+  document.getElementById('detail-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDetailPanel() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeDetail(e) { if (e.target===document.getElementById('detail-overlay')) closeDetailPanel(); }
+
+function renderDetail(o) {
+  document.getElementById('detail-title').textContent = o.order_ref;
+  const addr = typeof o.delivery_address==='string' ? JSON.parse(o.delivery_address) : (o.delivery_address||{});
+  const items = o.items||[];
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-section">
+      <p class="detail-section-title">Customer</p>
+      <div class="detail-row"><span class="detail-label">Name</span><span class="detail-val">${o.customer_name}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-val">${o.customer_email}</span></div>
+      <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-val">${o.customer_phone||'—'}</span></div>
+    </div>
+    <div class="divider divider-sm"></div>
+    <div class="detail-section">
+      <p class="detail-section-title">Delivery</p>
+      <p style="font-size:var(--text-sm);line-height:1.6">${addr.address_line||'—'}, ${addr.city||''}, ${addr.state||''}, Nigeria</p>
+    </div>
+    <div class="divider divider-sm"></div>
+    ${items.length?`
+    <div class="detail-section">
+      <p class="detail-section-title">Items</p>
+      ${items.map(i=>`
+      <div class="order-item-row">
+        <div class="oi-thumb">${i.product_image?`<img src="${i.product_image}" alt=""/>`:''}  </div>
+        <div class="oi-info"><p class="oi-name">${i.product_name}</p><p class="oi-qty">Qty: ${i.quantity}</p></div>
+        <p class="oi-price">${fmt.naira(i.subtotal)}</p>
+      </div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:var(--s4) 0;font-weight:600;border-top:1px solid var(--border);margin-top:var(--s2)">
+        <span>Total</span><span>${fmt.naira(o.total_amount)}</span>
+      </div>
+    </div>
+    <div class="divider divider-sm"></div>`:''}
+    <div class="detail-section">
+      <p class="detail-section-title">Order Info</p>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-val"><span class="badge ${stBadge(o.status)}">${stLabel(o.status)}</span></span></div>
+      <div class="detail-row"><span class="detail-label">Payment</span><span class="detail-val"><span class="badge ${o.payment_status==='paid'?'badge-success':'badge-neutral'}">${o.payment_status||'—'}</span></span></div>
+      <div class="detail-row"><span class="detail-label">Placed</span><span class="detail-val">${fmt.datetime(o.created_at)}</span></div>
+      ${o.paid_at?`<div class="detail-row"><span class="detail-label">Paid</span><span class="detail-val">${fmt.date(o.paid_at)}</span></div>`:''}
+    </div>
+    <div class="divider divider-sm"></div>
+    <div class="detail-section">
+      <p class="detail-section-title">Update Status</p>
+      <div class="status-updater">
+        <select class="field-input" id="new-status" style="margin-bottom:var(--s3)">
+          ${['pending','payment_confirmed','processing','shipped','delivered','cancelled'].map(s=>`<option value="${s}"${o.status===s?' selected':''}>${stLabel(s)}</option>`).join('')}
+        </select>
+        <textarea class="field-input" id="status-note" rows="2" placeholder="Add a note (optional)…" style="resize:none;margin-bottom:var(--s3)"></textarea>
+        <button class="btn btn-primary btn-full" onclick="updateStatus('${o.id}')">Update Status</button>
+      </div>
+    </div>`;
+}
+
+async function updateStatus(id) {
+  try {
+    await api.patch(`/orders/admin/${id}/status`, {
+      status: document.getElementById('new-status').value,
+      note: document.getElementById('status-note').value.trim(),
+    });
+    Toast.show('Status updated.'); closeDetailPanel(); await loadOrders();
+  } catch(err) { Toast.show(err.message,'error'); }
+}
+
+function stBadge(s){const m={pending:'badge-neutral',payment_confirmed:'badge-blue',processing:'badge-blue',shipped:'badge-blue',delivered:'badge-success',cancelled:'badge-error'};return m[s]||'badge-neutral'}
+function stLabel(s){return(s||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+</script>
+</body>
+</html>

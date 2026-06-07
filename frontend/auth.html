@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Sign In — TimeLux</title>
+  <link rel="stylesheet" href="src/styles/apple.css"/>
+  <style>
+    body{min-height:100dvh;display:flex;flex-direction:column;background:var(--bg-secondary)}
+    .auth-nav{display:flex;align-items:center;justify-content:space-between;padding:var(--s4) var(--s6)}
+    .auth-brand{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+    .auth-back{display:flex;align-items:center;gap:6px;font-size:var(--text-sm);color:var(--accent)}
+    .auth-back:hover{opacity:.75}
+    .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:var(--s8) var(--s4)}
+    .auth-card{width:100%;max-width:400px;padding:var(--s10) var(--s8);background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-md);animation:scaleIn .35s var(--ease-spring) both}
+    @media(max-width:440px){.auth-card{border:none;box-shadow:none;padding:var(--s6) var(--s2)}}
+    .auth-header{text-align:center;margin-bottom:var(--s8)}
+    .auth-logo{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:var(--s5)}
+    .auth-title{font-size:var(--text-2xl);font-weight:600;letter-spacing:-.03em;line-height:1.1;margin-bottom:var(--s2)}
+    .auth-subtitle{font-size:var(--text-sm);color:var(--text-secondary)}
+    .oauth-group{display:flex;flex-direction:column;gap:var(--s2);margin-bottom:var(--s6)}
+    .btn-oauth{width:100%;display:flex;align-items:center;gap:var(--s3);padding:11px 16px;border:1px solid var(--border);border-radius:var(--r-lg);font-size:var(--text-sm);color:var(--text-primary);background:var(--bg);transition:background var(--t-fast),border-color var(--t-fast);cursor:pointer}
+    .btn-oauth:hover{background:var(--bg-tertiary);border-color:var(--border-strong)}
+    .btn-oauth-label{flex:1;text-align:center;padding-right:24px}
+    .divider-text{display:flex;align-items:center;gap:var(--s3);margin:var(--s6) 0}
+    .divider-text::before,.divider-text::after{content:'';flex:1;height:1px;background:var(--border)}
+    .divider-text span{font-size:var(--text-xs);color:var(--text-tertiary);white-space:nowrap}
+    .auth-form{display:flex;flex-direction:column;gap:var(--s4)}
+    .auth-error{background:var(--error-bg);border:1px solid rgba(192,57,43,.2);border-radius:var(--r-md);padding:var(--s3) var(--s4);font-size:var(--text-sm);color:var(--error);display:none;margin-bottom:var(--s4)}
+    .auth-error.show{display:block}
+    .auth-switch{text-align:center;margin-top:var(--s6);font-size:var(--text-sm);color:var(--text-secondary)}
+    .auth-switch-btn{color:var(--accent);font-weight:500;cursor:pointer}
+    .auth-switch-btn:hover{text-decoration:underline}
+    .auth-terms{font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:var(--s4);line-height:1.5}
+    .forgot-link{font-size:var(--text-xs);color:var(--accent);text-align:right;cursor:pointer;margin-top:-8px}
+  </style>
+</head>
+<body>
+
+  <nav class="auth-nav">
+    <a href="index.html" class="auth-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </a>
+    <span class="auth-brand">TimeLux</span>
+    <div style="width:48px"></div>
+  </nav>
+
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-header">
+        <p class="auth-logo">TimeLux</p>
+        <h1 class="auth-title" id="auth-title">Welcome back</h1>
+        <p class="auth-subtitle" id="auth-subtitle">Sign in to access the collection</p>
+      </div>
+
+      <div class="auth-error" id="auth-error"></div>
+
+      <!-- OAuth -->
+      <div class="oauth-group">
+        <button class="btn-oauth" onclick="OAuthHandler.google()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          <span class="btn-oauth-label">Continue with Google</span>
+        </button>
+        <button class="btn-oauth" onclick="OAuthHandler.apple()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <span class="btn-oauth-label">Continue with Apple</span>
+        </button>
+      </div>
+
+      <div class="divider-text"><span>or</span></div>
+
+      <!-- Login Form -->
+      <form class="auth-form" id="login-form">
+        <div class="field">
+          <label class="field-label" for="login-email">Email</label>
+          <input class="field-input" id="login-email" type="email" placeholder="name@example.com" autocomplete="email" required/>
+        </div>
+        <div class="field">
+          <label class="field-label" for="login-password">Password</label>
+          <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" required/>
+        </div>
+        <p class="forgot-link">Forgot password?</p>
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn" style="margin-top:var(--s2)">Sign In</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form class="auth-form" id="signup-form" style="display:none">
+        <div class="field">
+          <label class="field-label" for="signup-name">Full Name</label>
+          <input class="field-input" id="signup-name" type="text" placeholder="John Doe" autocomplete="name" required/>
+        </div>
+        <div class="field">
+          <label class="field-label" for="signup-email">Email</label>
+          <input class="field-input" id="signup-email" type="email" placeholder="name@example.com" autocomplete="email" required/>
+        </div>
+        <div class="field">
+          <label class="field-label" for="signup-phone">Phone <span style="color:var(--text-tertiary);font-weight:400">(optional)</span></label>
+          <input class="field-input" id="signup-phone" type="tel" placeholder="+234 801 234 5678"/>
+        </div>
+        <div class="field">
+          <label class="field-label" for="signup-password">Password</label>
+          <input class="field-input" id="signup-password" type="password" placeholder="Min. 8 characters" autocomplete="new-password" required/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="signup-btn" style="margin-top:var(--s2)">Create Account</button>
+        <p class="auth-terms">By creating an account, you agree to TimeLux's Terms of Service and Privacy Policy.</p>
+      </form>
+
+      <div class="auth-switch" id="auth-switch">
+        Don't have an account? <span class="auth-switch-btn" onclick="AuthUI.showSignup()">Create one</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="src/utils/core.js"></script>
+  <script>
+    const redirectTo = new URLSearchParams(location.search).get('redirect') || 'shop.html';
+
+    const AuthUI = {
+      showLogin() {
+        document.getElementById('login-form').style.display = 'flex';
+        document.getElementById('signup-form').style.display = 'none';
+        document.getElementById('auth-title').textContent = 'Welcome back';
+        document.getElementById('auth-subtitle').textContent = 'Sign in to access the collection';
+        document.getElementById('auth-switch').innerHTML = `Don't have an account? <span class="auth-switch-btn" onclick="AuthUI.showSignup()">Create one</span>`;
+        clearError();
+      },
+      showSignup() {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('signup-form').style.display = 'flex';
+        document.getElementById('auth-title').textContent = 'Create account';
+        document.getElementById('auth-subtitle').textContent = 'Join TimeLux for exclusive access';
+        document.getElementById('auth-switch').innerHTML = `Already have an account? <span class="auth-switch-btn" onclick="AuthUI.showLogin()">Sign in</span>`;
+        clearError();
+      }
+    };
+    window.AuthUI = AuthUI;
+
+    function showError(msg) {
+      const el = document.getElementById('auth-error');
+      el.textContent = msg; el.classList.add('show');
+    }
+    function clearError() {
+      document.getElementById('auth-error').classList.remove('show');
+    }
+    function setLoading(id, on) {
+      const btn = document.getElementById(id);
+      btn.classList.toggle('btn-loading', on); btn.disabled = on;
+    }
+
+    const OAuthHandler = {
+      google() {
+        Toast.show('Redirecting to Google…');
+        location.href = `${window.API_BASE}/auth/google?redirect=${encodeURIComponent(redirectTo)}`;
+      },
+      apple() {
+        Toast.show('Redirecting to Apple…');
+        location.href = `${window.API_BASE}/auth/apple?redirect=${encodeURIComponent(redirectTo)}`;
+      }
+    };
+    window.OAuthHandler = OAuthHandler;
+
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault(); clearError(); setLoading('login-btn', true);
+      try {
+        await api.post('/auth/login', {
+          email: document.getElementById('login-email').value.trim(),
+          password: document.getElementById('login-password').value,
+        });
+        location.href = redirectTo;
+      } catch(err) { showError(err.message); setLoading('login-btn', false); }
+    });
+
+    document.getElementById('signup-form').addEventListener('submit', async e => {
+      e.preventDefault(); clearError(); setLoading('signup-btn', true);
+      try {
+        await api.post('/auth/register', {
+          full_name: document.getElementById('signup-name').value.trim(),
+          email: document.getElementById('signup-email').value.trim(),
+          phone: document.getElementById('signup-phone').value.trim() || undefined,
+          password: document.getElementById('signup-password').value,
+        });
+        location.href = redirectTo;
+      } catch(err) { showError(err.message); setLoading('signup-btn', false); }
+    });
+
+    // Already logged in? Skip auth
+    AuthGuard.check().then(ok => { if (ok) location.replace(redirectTo); });
+  </script>
+</body>
+</html>

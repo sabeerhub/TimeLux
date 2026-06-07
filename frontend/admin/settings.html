@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Settings — TimeLux Admin</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="stylesheet" href="../src/styles/apple.css"/>
+  <link rel="stylesheet" href="../src/styles/admin.css"/>
+  <style>
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s6)}
+    @media(max-width:768px){.settings-grid{grid-template-columns:1fr}}
+    .settings-section{margin-bottom:var(--s8)}
+    .settings-section-title{font-size:var(--text-xs);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:var(--s4)}
+    .settings-form{display:flex;flex-direction:column;gap:var(--s4)}
+    .settings-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s6)}
+    .settings-card-title{font-size:var(--text-base);font-weight:600;margin-bottom:var(--s5)}
+  </style>
+</head>
+<body style="background:var(--bg-secondary)">
+<div class="admin-layout">
+  <div id="layout-shell"></div>
+  <main class="admin-main">
+    <div class="page-header"><h1 class="page-title">Settings</h1></div>
+
+    <div class="settings-grid">
+      <!-- Profile -->
+      <div class="settings-card animate-fade-up">
+        <h2 class="settings-card-title">Profile</h2>
+        <div class="settings-form">
+          <div class="field"><label class="field-label">Full Name</label><input class="field-input" id="s-name" type="text" placeholder="Admin Name"/></div>
+          <div class="field"><label class="field-label">Email</label><input class="field-input" id="s-email" type="email" disabled style="opacity:.5"/></div>
+          <button class="btn btn-primary" onclick="Toast.show('Profile saved.')">Save Profile</button>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div class="settings-card animate-fade-up delay-1">
+        <h2 class="settings-card-title">Security</h2>
+        <div class="settings-form">
+          <div class="field"><label class="field-label">Current Password</label><input class="field-input" type="password" placeholder="••••••••"/></div>
+          <div class="field"><label class="field-label">New Password</label><input class="field-input" type="password" placeholder="Min. 8 characters"/></div>
+          <div class="field"><label class="field-label">Confirm New Password</label><input class="field-input" type="password" placeholder="Repeat new password"/></div>
+          <button class="btn btn-primary" onclick="Toast.show('Password updated.')">Update Password</button>
+        </div>
+      </div>
+
+      <!-- OAuth Settings -->
+      <div class="settings-card animate-fade-up delay-2">
+        <h2 class="settings-card-title">OAuth Settings</h2>
+        <div class="settings-form">
+          <div class="field"><label class="field-label">Google Client ID</label><input class="field-input" type="text" placeholder="your-google-client-id.apps.googleusercontent.com"/></div>
+          <div class="field"><label class="field-label">Apple Client ID</label><input class="field-input" type="text" placeholder="com.timelux.signin"/></div>
+          <p style="font-size:var(--text-xs);color:var(--text-secondary)">OAuth credentials are managed via environment variables on Railway.</p>
+          <a href="https://railway.app" target="_blank" class="btn btn-outline btn-sm" style="width:fit-content">Open Railway Dashboard ↗</a>
+        </div>
+      </div>
+
+      <!-- Store Settings -->
+      <div class="settings-card animate-fade-up delay-3">
+        <h2 class="settings-card-title">Store</h2>
+        <div class="settings-form">
+          <div class="field"><label class="field-label">Store Name</label><input class="field-input" type="text" value="TimeLux"/></div>
+          <div class="field"><label class="field-label">Support Email</label><input class="field-input" type="email" placeholder="support@timelux.com"/></div>
+          <div class="field"><label class="field-label">Currency</label><select class="field-input"><option>NGN — Nigerian Naira</option></select></div>
+          <button class="btn btn-primary" onclick="Toast.show('Settings saved.')">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../config.js"></script>
+  <script src="../src/utils/core.js"></script>
+<script src="../src/utils/admin-core.js"></script>
+<script>
+(async () => {
+  const ok = await AuthGuard.requireAdmin();
+  if (!ok) return;
+  document.getElementById('layout-shell').outerHTML = AdminLayout.render('settings');
+  try {
+    const me = window.__admin;
+    if (me) {
+      document.getElementById('s-name').value = me.full_name||'';
+      document.getElementById('s-email').value = me.email||'';
+    }
+  } catch {}
+})();
+</script>
+</body>
+</html>

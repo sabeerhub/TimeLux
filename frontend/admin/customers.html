@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Customers — TimeLux Admin</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="stylesheet" href="../src/styles/apple.css"/>
+  <link rel="stylesheet" href="../src/styles/admin.css"/>
+</head>
+<body style="background:var(--bg-secondary)">
+
+<div class="admin-layout">
+  <div id="layout-shell"></div>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <h1 class="page-title">Customers</h1>
+      <span id="customer-count" style="font-size:var(--text-sm);color:var(--text-secondary)"></span>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search" placeholder="Search customers…" oninput="filterCustomers()"/>
+      </div>
+    </div>
+
+    <div class="panel animate-fade-up">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr>
+            <th>Customer</th>
+            <th class="hide-mobile">Phone</th>
+            <th>Orders</th>
+            <th class="hide-mobile">Lifetime Value</th>
+            <th class="hide-mobile">Joined</th>
+          </tr></thead>
+          <tbody id="customers-tbody">
+            <tr><td colspan="5" style="padding:var(--s10)">
+              <div class="skeleton" style="height:200px;border-radius:var(--r-lg)"></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../config.js"></script>
+  <script src="../src/utils/core.js"></script>
+<script src="../src/utils/admin-core.js"></script>
+<script>
+let allCustomers = [];
+
+(async () => {
+  const ok = await AuthGuard.requireAdmin();
+  if (!ok) return;
+  document.getElementById('layout-shell').outerHTML = AdminLayout.render('customers');
+  try {
+    allCustomers = await api.get('/admin/customers?limit=200');
+    document.getElementById('customer-count').textContent = `${allCustomers.length} total`;
+    renderTable(allCustomers);
+  } catch(err) { Toast.show(err.message,'error'); }
+})();
+
+function renderTable(list) {
+  const tb = document.getElementById('customers-tbody');
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:var(--s10);color:var(--text-secondary)">No customers yet.</td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map(c => {
+    const ini = (c.full_name||c.email||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:var(--s3)">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);flex-shrink:0">${ini}</div>
+          <div><p style="font-weight:500">${c.full_name||'—'}</p><p style="font-size:var(--text-xs);color:var(--text-secondary)">${c.email}</p></div>
+        </div>
+      </td>
+      <td class="hide-mobile" style="color:var(--text-secondary)">${c.phone||'—'}</td>
+      <td>${c.order_count||0}</td>
+      <td class="hide-mobile">${c.lifetime_value?fmt.naira(c.lifetime_value):'—'}</td>
+      <td class="hide-mobile" style="color:var(--text-secondary)">${fmt.date(c.created_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCustomers() {
+  const q = document.getElementById('search').value.toLowerCase();
+  renderTable(allCustomers.filter(c =>
+    (c.full_name||'').toLowerCase().includes(q) ||
+    c.email.toLowerCase().includes(q) ||
+    (c.phone||'').includes(q)
+  ));
+}
+</script>
+</body>
+</html>

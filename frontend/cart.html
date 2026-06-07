@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Your Bag — TimeLux</title>
+  <link rel="stylesheet" href="src/styles/apple.css"/>
+  <style>
+    body{background:var(--bg-secondary)}
+    .page-wrap{padding:var(--s8) 0 calc(var(--bottom-nav-h)+var(--s10));min-height:100dvh}
+    .page-title{font-size:var(--text-2xl);font-weight:600;letter-spacing:-.03em;margin-bottom:var(--s8)}
+    .cart-layout{display:grid;grid-template-columns:1fr 360px;gap:var(--s8);align-items:start}
+    @media(max-width:900px){.cart-layout{grid-template-columns:1fr}}
+
+    /* Cart items panel */
+    .cart-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+    .cart-panel-header{padding:var(--s5) var(--s6);border-bottom:1px solid var(--border);font-weight:600;font-size:var(--text-base)}
+    .cart-item{display:flex;gap:var(--s4);padding:var(--s5) var(--s6);border-bottom:1px solid var(--border);align-items:flex-start}
+    .cart-item:last-child{border-bottom:none}
+    .cart-img{width:80px;height:80px;border-radius:var(--r-lg);background:var(--bg-tertiary);overflow:hidden;flex-shrink:0}
+    .cart-img img{width:100%;height:100%;object-fit:cover}
+    .cart-item-info{flex:1;min-width:0}
+    .cart-item-brand{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em}
+    .cart-item-name{font-size:var(--text-base);font-weight:500;margin:2px 0 var(--s3)}
+    .cart-item-price{font-size:var(--text-sm);font-weight:500}
+    .cart-item-actions{display:flex;align-items:center;gap:var(--s4);margin-top:var(--s3)}
+    .qty-ctrl-sm{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--r-full)}
+    .qty-btn-sm{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:var(--text-base);color:var(--text-secondary);cursor:pointer;transition:background var(--t-fast)}
+    .qty-btn-sm:hover{background:var(--bg-tertiary)}
+    .qty-num-sm{width:32px;text-align:center;font-size:var(--text-sm);font-weight:500}
+    .remove-btn{font-size:var(--text-xs);color:var(--error);cursor:pointer}
+    .remove-btn:hover{text-decoration:underline}
+    .cart-item-subtotal{font-size:var(--text-sm);font-weight:600;white-space:nowrap;margin-left:auto;padding-top:var(--s5)}
+
+    /* Summary */
+    .summary-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s6);position:sticky;top:calc(var(--nav-h)+var(--s4))}
+    .summary-title{font-size:var(--text-base);font-weight:600;margin-bottom:var(--s5)}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:var(--s2) 0;font-size:var(--text-sm)}
+    .summary-row-label{color:var(--text-secondary)}
+    .summary-total{font-size:var(--text-md);font-weight:600;border-top:1px solid var(--border);padding-top:var(--s4);margin-top:var(--s2)}
+    .checkout-btn{margin-top:var(--s5)}
+
+    /* Empty */
+    .empty-cart{text-align:center;padding:var(--s20) var(--s6)}
+    .empty-cart h3{font-size:var(--text-lg);font-weight:500;margin-bottom:var(--s3)}
+    .empty-cart p{font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--s8)}
+  </style>
+</head>
+<body>
+
+  <div id="nav-wrap"></div>
+
+  <main class="page-wrap">
+    <div class="container">
+      <h1 class="page-title animate-fade-up">Your Bag</h1>
+      <div id="cart-content"></div>
+    </div>
+  </main>
+
+  <div id="bottom-nav-wrap"></div>
+
+  <script src="config.js"></script>
+  <script src="src/utils/core.js"></script>
+  <script>
+    (async () => {
+      const ok = await AuthGuard.require();
+      if (!ok) return;
+      document.getElementById('nav-wrap').innerHTML = Nav.renderAuth();
+      document.getElementById('bottom-nav-wrap').innerHTML = Nav.renderBottom('');
+      Cart.updateBadge();
+      renderCart();
+    })();
+
+    function renderCart() {
+      const items = Cart.items;
+      const content = document.getElementById('cart-content');
+
+      if (!items.length) {
+        content.innerHTML = `
+          <div class="empty-cart">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1" style="margin:0 auto var(--s6)">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+            <h3>Your bag is empty</h3>
+            <p>Add some timepieces to continue.</p>
+            <a href="shop.html" class="btn btn-primary btn-lg">Browse Collection</a>
+          </div>`;
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="cart-layout animate-fade-up">
+          <div class="cart-panel">
+            <div class="cart-panel-header">${items.length} Item${items.length!==1?'s':''}</div>
+            <div id="cart-items">
+              ${items.map(item => renderItem(item)).join('')}
+            </div>
+          </div>
+
+          <div>
+            <div class="summary-card">
+              <h3 class="summary-title">Order Summary</h3>
+              <div class="summary-row"><span class="summary-row-label">Subtotal</span><span>${fmt.naira(Cart.total)}</span></div>
+              <div class="summary-row"><span class="summary-row-label">Delivery</span><span>Free</span></div>
+              <div class="summary-row summary-total"><span>Total</span><span>${fmt.naira(Cart.total)}</span></div>
+              <a href="checkout.html" class="btn btn-primary btn-full btn-lg checkout-btn">Proceed to Checkout</a>
+              <a href="shop.html" class="btn btn-ghost btn-full" style="margin-top:var(--s3)">Continue Shopping</a>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderItem(item) {
+      return `
+      <div class="cart-item" id="cart-item-${item.id}">
+        <div class="cart-img">
+          ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy"/>` : ''}
+        </div>
+        <div class="cart-item-info">
+          <p class="cart-item-brand">${item.brand||''}</p>
+          <p class="cart-item-name">${item.name}</p>
+          <p class="cart-item-price">${fmt.naira(item.price)}</p>
+          <div class="cart-item-actions">
+            <div class="qty-ctrl-sm">
+              <button class="qty-btn-sm" onclick="changeQty('${item.id}', ${item.quantity-1})">−</button>
+              <span class="qty-num-sm">${item.quantity}</span>
+              <button class="qty-btn-sm" onclick="changeQty('${item.id}', ${item.quantity+1})">+</button>
+            </div>
+            <span class="remove-btn" onclick="removeItem('${item.id}')">Remove</span>
+          </div>
+        </div>
+        <div class="cart-item-subtotal">${fmt.naira(item.price * item.quantity)}</div>
+      </div>`;
+    }
+
+    function changeQty(id, qty) {
+      Cart.updateQty(id, qty);
+      renderCart();
+    }
+
+    function removeItem(id) {
+      Cart.remove(id);
+      renderCart();
+    }
+  </script>
+</body>
+</html>

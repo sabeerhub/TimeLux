@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin — TimeLux</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="stylesheet" href="../src/styles/apple.css"/>
+  <style>
+    body{min-height:100dvh;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary)}
+    .card{width:100%;max-width:380px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s10) var(--s8);box-shadow:var(--shadow-lg);animation:scaleIn .3s var(--ease-spring);margin:var(--s6)}
+    .brand{text-align:center;margin-bottom:var(--s8)}
+    .logo-mark{width:44px;height:44px;background:var(--text-primary);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin:0 auto var(--s4)}
+    .card-title{font-size:var(--text-xl);font-weight:600;letter-spacing:-.02em;margin-bottom:var(--s1)}
+    .card-sub{font-size:var(--text-sm);color:var(--text-secondary)}
+    .form{display:flex;flex-direction:column;gap:var(--s4)}
+    .err{background:var(--error-bg);border:1px solid rgba(192,57,43,.2);border-radius:var(--r-md);padding:var(--s3) var(--s4);font-size:var(--text-sm);color:var(--error);display:none;margin-bottom:var(--s2)}
+    .err.show{display:block}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      </div>
+      <h1 class="card-title">Admin Portal</h1>
+      <p class="card-sub">TimeLux Operations</p>
+    </div>
+    <div class="err" id="err"></div>
+    <form class="form" id="form">
+      <div class="field"><label class="field-label">Email</label><input class="field-input" id="email" type="email" placeholder="admin@timelux.com" autocomplete="username" required/></div>
+      <div class="field"><label class="field-label">Password</label><input class="field-input" id="password" type="password" placeholder="••••••••" autocomplete="current-password" required/></div>
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top:var(--s2)" id="submit-btn">Sign In</button>
+    </form>
+  </div>
+  <script src="../config.js"></script>
+  <script src="../src/utils/core.js"></script>
+  <script>
+    AuthGuard.check().then(ok => { if (ok && window.__user?.role) location.href = '/admin/dashboard.html'; });
+    document.getElementById('form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const errEl = document.getElementById('err'), btn = document.getElementById('submit-btn');
+      errEl.classList.remove('show'); btn.classList.add('btn-loading'); btn.disabled = true;
+      try {
+        await api.post('/auth/admin/login', {
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value,
+        });
+        location.href = '/admin/dashboard.html';
+      } catch(err) {
+        errEl.textContent = err.message; errEl.classList.add('show');
+        btn.classList.remove('btn-loading'); btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

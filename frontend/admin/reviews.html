@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Reviews — TimeLux Admin</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="stylesheet" href="../src/styles/apple.css"/>
+  <link rel="stylesheet" href="../src/styles/admin.css"/>
+</head>
+<body style="background:var(--bg-secondary)">
+<div class="admin-layout">
+  <div id="layout-shell"></div>
+  <main class="admin-main">
+    <div class="page-header"><h1 class="page-title">Reviews</h1></div>
+    <div class="panel animate-fade-up">
+      <div class="panel-body" style="text-align:center;padding:var(--s16)">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" style="margin:0 auto var(--s4)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <h3 style="font-weight:500;margin-bottom:var(--s2)">No reviews yet</h3>
+        <p style="color:var(--text-secondary);font-size:var(--text-sm)">Customer reviews will appear here once customers start leaving feedback.</p>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../config.js"></script>
+  <script src="../src/utils/core.js"></script>
+<script src="../src/utils/admin-core.js"></script>
+<script>
+(async () => {
+  const ok = await AuthGuard.requireAdmin();
+  if (!ok) return;
+  document.getElementById('layout-shell').outerHTML = AdminLayout.render('reviews');
+})();
+</script>
+</body>
+</html>

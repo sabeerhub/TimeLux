@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Account — TimeLux</title>
+  <link rel="stylesheet" href="src/styles/apple.css"/>
+  <style>
+    body{background:var(--bg-secondary)}
+    .page-wrap{padding:var(--s8) 0 calc(var(--bottom-nav-h)+var(--s10));min-height:100dvh}
+    .account-grid{display:grid;grid-template-columns:260px 1fr;gap:var(--s6);align-items:start}
+    @media(max-width:768px){.account-grid{grid-template-columns:1fr}}
+    .profile-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s6);position:sticky;top:calc(var(--nav-h)+var(--s4))}
+    .avatar{width:64px;height:64px;border-radius:50%;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:var(--text-xl);font-weight:600;color:var(--text-secondary);margin-bottom:var(--s4)}
+    .profile-name{font-size:var(--text-lg);font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+    .profile-email{font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--s5)}
+    .pnav-item{display:flex;align-items:center;gap:var(--s3);padding:var(--s3);border-radius:var(--r-md);font-size:var(--text-sm);color:var(--text-secondary);cursor:pointer;transition:all var(--t-fast);margin-bottom:2px}
+    .pnav-item:hover{background:var(--bg-tertiary);color:var(--text-primary)}
+    .pnav-item.active{background:var(--bg-tertiary);color:var(--text-primary);font-weight:500}
+    .content-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s6)}
+    .panel-title{font-size:var(--text-lg);font-weight:600;letter-spacing:-.02em;margin-bottom:var(--s6)}
+    .order-row{display:flex;align-items:center;justify-content:space-between;padding:var(--s5) 0;border-bottom:1px solid var(--border);gap:var(--s4);flex-wrap:wrap}
+    .order-row:last-child{border-bottom:none}
+    .order-ref{font-weight:600;font-size:var(--text-sm)}
+    .order-date{font-size:var(--text-xs);color:var(--text-secondary);margin-top:2px}
+    .order-actions{display:flex;align-items:center;gap:var(--s4)}
+    .edit-form{display:flex;flex-direction:column;gap:var(--s4)}
+  </style>
+</head>
+<body>
+
+  <div id="nav-wrap"></div>
+
+  <main class="page-wrap">
+    <div class="container">
+      <div class="account-grid">
+        <!-- Profile sidebar -->
+        <div class="profile-card animate-fade-up">
+          <div class="avatar" id="profile-avatar">?</div>
+          <p class="profile-name" id="profile-name">Loading…</p>
+          <p class="profile-email" id="profile-email"></p>
+          <div style="border-top:1px solid var(--border);padding-top:var(--s4);margin-bottom:var(--s4)">
+            <div class="pnav-item active" id="pnav-orders" onclick="showPanel('orders',this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              My Orders
+            </div>
+            <div class="pnav-item" id="pnav-profile" onclick="showPanel('profile',this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Edit Profile
+            </div>
+          </div>
+          <button class="btn btn-outline btn-full btn-sm" onclick="AuthGuard.logout()">Sign Out</button>
+        </div>
+
+        <!-- Content area -->
+        <div id="main-content" class="animate-fade-up delay-1"></div>
+      </div>
+    </div>
+  </main>
+
+  <div id="bottom-nav-wrap"></div>
+
+  <script src="config.js"></script>
+  <script src="src/utils/core.js"></script>
+  <script>
+    let user = null;
+
+    (async () => {
+      const ok = await AuthGuard.require();
+      if (!ok) return;
+      document.getElementById('nav-wrap').innerHTML = Nav.renderAuth();
+      document.getElementById('bottom-nav-wrap').innerHTML = Nav.renderBottom('account');
+      Cart.updateBadge();
+      try {
+        user = await api.get('/auth/me');
+        window.__user = user;
+        const ini = user.full_name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+        document.getElementById('profile-avatar').textContent = ini;
+        document.getElementById('profile-name').textContent = user.full_name;
+        document.getElementById('profile-email').textContent = user.email;
+      } catch {}
+      showPanel('orders', document.getElementById('pnav-orders'));
+    })();
+
+    async function showPanel(panel, el) {
+      document.querySelectorAll('.pnav-item').forEach(n => n.classList.remove('active'));
+      if (el) el.classList.add('active');
+      const c = document.getElementById('main-content');
+
+      if (panel === 'orders') {
+        c.innerHTML = `<div class="content-panel"><h2 class="panel-title">My Orders</h2><div id="orders-list"><div class="skeleton" style="height:200px;border-radius:var(--r-lg)"></div></div></div>`;
+        try {
+          const orders = await api.get('/orders/my-orders');
+          if (!orders.length) {
+            document.getElementById('orders-list').innerHTML =
+              `<div style="text-align:center;padding:var(--s12) 0">
+                <p style="color:var(--text-secondary);margin-bottom:var(--s5)">No orders yet.</p>
+                <a href="shop.html" class="btn btn-primary">Browse Collection</a>
+              </div>`;
+          } else {
+            document.getElementById('orders-list').innerHTML = orders.map(o=>`
+            <div class="order-row">
+              <div>
+                <p class="order-ref">${o.order_ref}</p>
+                <p class="order-date">${fmt.date(o.created_at)} · ${o.item_count||1} item${(o.item_count||1)!==1?'s':''}</p>
+              </div>
+              <div class="order-actions">
+                <span class="badge ${stBadge(o.status)}">${stLabel(o.status)}</span>
+                <span style="font-weight:500;font-size:var(--text-sm)">${fmt.naira(o.total_amount)}</span>
+                <a href="track-order.html?ref=${o.order_ref}" class="btn btn-ghost btn-sm">Track →</a>
+              </div>
+            </div>`).join('');
+          }
+        } catch(err) {
+          document.getElementById('orders-list').innerHTML = `<p style="color:var(--error)">${err.message}</p>`;
+        }
+      }
+
+      if (panel === 'profile') {
+        c.innerHTML = `
+        <div class="content-panel">
+          <h2 class="panel-title">Edit Profile</h2>
+          <form class="edit-form" onsubmit="saveProfile(event)">
+            <div class="field"><label class="field-label">Full Name</label><input class="field-input" id="edit-name" type="text" value="${user?.full_name||''}"/></div>
+            <div class="field"><label class="field-label">Email</label><input class="field-input" type="email" value="${user?.email||''}" disabled style="opacity:.5"/></div>
+            <div class="field"><label class="field-label">Phone</label><input class="field-input" id="edit-phone" type="tel" value="${user?.phone||''}" placeholder="+234 801 234 5678"/></div>
+            <div style="border-top:1px solid var(--border);padding-top:var(--s6)">
+              <p style="font-size:var(--text-sm);font-weight:500;margin-bottom:var(--s4)">Change Password</p>
+              <div class="field"><label class="field-label">Current Password</label><input class="field-input" id="cur-pw" type="password" placeholder="••••••••"/></div>
+              <div class="field" style="margin-top:var(--s4)"><label class="field-label">New Password</label><input class="field-input" id="new-pw" type="password" placeholder="Min. 8 characters"/></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="save-btn">Save Changes</button>
+          </form>
+        </div>`;
+      }
+    }
+
+    async function saveProfile(e) {
+      e.preventDefault();
+      const btn = document.getElementById('save-btn');
+      btn.classList.add('btn-loading'); btn.disabled=true;
+      try { Toast.show('Profile updated.'); }
+      catch(err) { Toast.show(err.message,'error'); }
+      finally { btn.classList.remove('btn-loading'); btn.disabled=false; }
+    }
+
+    function stBadge(s){const m={pending:'badge-neutral',payment_confirmed:'badge-blue',processing:'badge-blue',shipped:'badge-blue',delivered:'badge-success',cancelled:'badge-error'};return m[s]||'badge-neutral'}
+    function stLabel(s){return(s||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+  </script>
+</body>
+</html>
