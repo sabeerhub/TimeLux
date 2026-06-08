@@ -164,10 +164,11 @@
     document.getElementById('login-form').addEventListener('submit', async e => {
       e.preventDefault(); clearError(); setLoading('login-btn', true);
       try {
-        await api.post('/auth/login', {
+        const loginRes = await api.post('/auth/login', {
           email: document.getElementById('login-email').value.trim(),
           password: document.getElementById('login-password').value,
         });
+        if (loginRes.token) Token.set(loginRes.token);
         location.href = redirectTo;
       } catch(err) { showError(err.message); setLoading('login-btn', false); }
     });
@@ -175,12 +176,13 @@
     document.getElementById('signup-form').addEventListener('submit', async e => {
       e.preventDefault(); clearError(); setLoading('signup-btn', true);
       try {
-        await api.post('/auth/register', {
+        const regRes = await api.post('/auth/register', {
           full_name: document.getElementById('signup-name').value.trim(),
           email: document.getElementById('signup-email').value.trim(),
           phone: document.getElementById('signup-phone').value.trim() || undefined,
           password: document.getElementById('signup-password').value,
         });
+        if (regRes.token) Token.set(regRes.token);
         location.href = redirectTo;
       } catch(err) { showError(err.message); setLoading('signup-btn', false); }
     });

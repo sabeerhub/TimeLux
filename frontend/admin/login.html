@@ -43,10 +43,11 @@
       const errEl = document.getElementById('err'), btn = document.getElementById('submit-btn');
       errEl.classList.remove('show'); btn.classList.add('btn-loading'); btn.disabled = true;
       try {
-        await api.post('/auth/admin/login', {
+        const ar = await api.post('/auth/admin/login', {
           email: document.getElementById('email').value.trim(),
           password: document.getElementById('password').value,
         });
+        if (ar.token) Token.setAdmin(ar.token);
         location.href = '/admin/dashboard.html';
       } catch(err) {
         errEl.textContent = err.message; errEl.classList.add('show');
