@@ -97,7 +97,12 @@
         <label class="field-label">Category</label>
         <select class="field-input" id="f-category">
           <option value="">Select category</option>
-          ${['Dress Watch','Sports Watch','Diver\'s Watch','Chronograph','Tourbillon','Complications'].map(c=>`<option>${c}</option>`).join('')}
+          <option>Dress Watch</option>
+          <option>Sports Watch</option>
+          <option>Diver's Watch</option>
+          <option>Chronograph</option>
+          <option>Tourbillon</option>
+          <option>Complications</option>
         </select>
       </div>
       <div class="form-row">
@@ -135,8 +140,19 @@ let allProducts = [], editingId = null;
   const ok = await AuthGuard.requireAdmin();
   if (!ok) return;
   document.getElementById('layout-shell').outerHTML = AdminLayout.render('watches');
-  await loadProducts();
+  await Promise.all([loadProducts(), loadBrands()]);
 })();
+
+async function loadBrands() {
+  try {
+    const brands = await api.get('/brands');
+    const select = document.getElementById('f-brand');
+    if (select && brands.length) {
+      select.innerHTML = '<option value="">Select brand</option>' +
+        brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    }
+  } catch(err) { console.log('Brands load error:', err.message); }
+}
 
 async function loadProducts() {
   try {
