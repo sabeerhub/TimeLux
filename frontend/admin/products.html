@@ -267,24 +267,42 @@ document.getElementById('watch-form').addEventListener('submit', async e => {
   const btn=document.getElementById('save-btn'), errEl=document.getElementById('drawer-err');
   errEl.style.display='none'; btn.classList.add('btn-loading'); btn.disabled=true;
   try {
-    const fd = new FormData();
-    fd.append('name', document.getElementById('f-name').value.trim());
-    fd.append('price', document.getElementById('f-price').value);
-    fd.append('stock_qty', document.getElementById('f-stock').value);
-    fd.append('description', document.getElementById('f-desc').value);
-    fd.append('category', document.getElementById('f-category').value);
-    fd.append('movement_type', document.getElementById('f-movement').value);
-    fd.append('case_size_mm', document.getElementById('f-case-size').value||'');
-    fd.append('case_material', document.getElementById('f-material').value);
-    fd.append('water_resistance', document.getElementById('f-water').value);
-    fd.append('is_featured', document.getElementById('f-featured').checked);
-    Array.from(document.getElementById('img-input').files).slice(0,6).forEach(f=>fd.append('images',f));
-    if (editingId) { await api.putForm(`/products/${editingId}`,fd,true); Toast.show('Watch updated.'); }
-    else { await api.postForm('/products',fd,true); Toast.show('Watch added.'); }
-    DrawerCtrl.close(); await loadProducts();
+    // Send as JSON first (no CORS preflight issues)
+    const payload = {
+      name: document.getElementById('f-name').value.trim(),
+      price: document.getElementById('f-price').value,
+      stock_qty: document.getElementById('f-stock').value,
+      description: document.getElementById('f-desc').value,
+      category: document.getElementById('f-category').value,
+      movement_type: document.getElementById('f-movement').value,
+      case_size_mm: document.getElementById('f-case-size').value || null,
+      case_material: document.getElementById('f-material').value,
+      water_resistance: document.getElementById('f-water').value,
+      is_featured: document.getElementById('f-featured').checked,
+      brand_id: document.getElementById('f-brand').value || null,
+    };
+
+    let result;
+    if (editingId) {
+      result = await api.patch(`/products/${editingId}`, payload, true);
+    } else {
+      result = await api.post('/products', payload, true);
+    }
+
+    // Upload images separately if any
+    const files = document.getElementById('img-input').files;
+    if (files.length > 0 && result.data?.id) {
+      const fd = new FormData();
+      Array.from(files).slice(0,6).forEach(f => fd.append('images', f));
+      const productId = result.data.id || editingId;
+      await api.putForm(`/products/${productId}/images`, fd, true);
+    }
+
+    Toast.show(editingId ? 'Watch updated.' : 'Watch added.');
+    DrawerCtrl.close();
+    await loadProducts();
   } catch(err) {
-    const adminToken = Token.getAdmin();
-    errEl.textContent = err.message + ' | Token: ' + (adminToken ? adminToken.substring(0,20)+'...' : 'MISSING');
+    errEl.textContent = err.message;
     errEl.style.display='block';
   }
   finally { btn.classList.remove('btn-loading'); btn.disabled=false; }
