@@ -282,7 +282,11 @@ document.getElementById('watch-form').addEventListener('submit', async e => {
     if (editingId) { await api.putForm(`/products/${editingId}`,fd,true); Toast.show('Watch updated.'); }
     else { await api.postForm('/products',fd,true); Toast.show('Watch added.'); }
     DrawerCtrl.close(); await loadProducts();
-  } catch(err) { errEl.textContent=err.message; errEl.style.display='block'; }
+  } catch(err) { 
+    console.error('Save error:', err);
+    errEl.textContent = err.message + ' — Check console for details'; 
+    errEl.style.display='block'; 
+  }
   finally { btn.classList.remove('btn-loading'); btn.disabled=false; }
 });
 
