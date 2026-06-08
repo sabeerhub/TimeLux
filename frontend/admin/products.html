@@ -279,8 +279,8 @@ document.getElementById('watch-form').addEventListener('submit', async e => {
     fd.append('water_resistance', document.getElementById('f-water').value);
     fd.append('is_featured', document.getElementById('f-featured').checked);
     Array.from(document.getElementById('img-input').files).slice(0,6).forEach(f=>fd.append('images',f));
-    if (editingId) { await api.putForm(`/products/${editingId}`,fd); Toast.show('Watch updated.'); }
-    else { await api.postForm('/products',fd); Toast.show('Watch added.'); }
+    if (editingId) { await api.putForm(`/products/${editingId}`,fd,true); Toast.show('Watch updated.'); }
+    else { await api.postForm('/products',fd,true); Toast.show('Watch added.'); }
     DrawerCtrl.close(); await loadProducts();
   } catch(err) { errEl.textContent=err.message; errEl.style.display='block'; }
   finally { btn.classList.remove('btn-loading'); btn.disabled=false; }
@@ -288,7 +288,7 @@ document.getElementById('watch-form').addEventListener('submit', async e => {
 
 async function deleteProduct(id, name) {
   if (!confirm(`Remove "${name}"? This cannot be undone.`)) return;
-  try { await api.del(`/products/${id}`); Toast.show('Watch removed.'); await loadProducts(); }
+  try { await api.del(`/products/${id}`,true); Toast.show('Watch removed.'); await loadProducts(); }
   catch(err) { Toast.show(err.message,'error'); }
 }
 </script>
