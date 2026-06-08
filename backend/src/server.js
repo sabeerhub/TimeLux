@@ -22,23 +22,17 @@ dotenv.config();
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
-// ── Security headers ──────────────────────────────────────
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", 'res.cloudinary.com', 'data:'],
-    },
-  },
 }));
 
-// ── CORS ──────────────────────────────────────────────────
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
   'http://localhost:5500',
   'http://127.0.0.1:5500',
-];
+].filter(Boolean);
+
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
@@ -49,30 +43,28 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ── Webhook raw body (MUST be before json parser) ─────────
 app.use('/api/webhooks', express.raw({ type: 'application/json' }));
-
-// ── Body parsing ──────────────────────────────────────────
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
-// ── Logging ───────────────────────────────────────────────
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(requestLogger);
 }
 
-// ── Rate limiting ─────────────────────────────────────────
 app.use('/api/', globalRateLimiter);
 
-// ── Health check ──────────────────────────────────────────
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'TimeLux API', env: process.env.NODE_ENV, ts: new Date().toISOString() });
+  res.status(200).json({
+    status: 'ok',
+    service: 'TimeLux API',
+    env: process.env.NODE_ENV,
+    ts: new Date().toISOString(),
+  });
 });
 
-// ── Routes ────────────────────────────────────────────────
 app.use('/api/auth',     authRoutes);
 app.use('/api/auth',     oauthRoutes);
 app.use('/api/products', productRoutes);
@@ -81,12 +73,10 @@ app.use('/api/admin',    adminRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/brands',   brandRoutes);
 
-// ── Error handling ────────────────────────────────────────
 app.use(notFound);
 app.use(errorHandler);
 
-// ── Start ─────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n⌚  TimeLux API  —  port ${PORT}  —  ${process.env.NODE_ENV}`);
   console.log(`   Frontend: ${process.env.FRONTEND_URL}\n`);
 });
