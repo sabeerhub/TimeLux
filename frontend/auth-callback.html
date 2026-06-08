@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Signing in — TimeLux</title>
+  <link rel="stylesheet" href="src/styles/apple.css"/>
+  <style>
+    body{min-height:100dvh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+    .wrap{text-align:center;padding:var(--s6)}
+    .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto var(--s6)}
+    p{font-size:var(--text-sm);color:var(--text-secondary)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="spinner"></div>
+    <p>Signing you in…</p>
+  </div>
+  <script src="config.js"></script>
+  <script src="src/utils/core.js"></script>
+  <script>
+    (async () => {
+      const params   = new URLSearchParams(location.search);
+      const token    = params.get('token');
+      const redirect = params.get('redirect') || 'shop.html';
+
+      if (!token) {
+        location.href = 'auth.html?error=oauth_failed';
+        return;
+      }
+
+      try {
+        // Exchange token — call backend to set httpOnly cookie
+        const r = await fetch(`${window.API_BASE}/auth/oauth-callback`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+
+        if (r.ok) {
+          location.href = redirect;
+        } else {
+          location.href = 'auth.html?error=oauth_failed';
+        }
+      } catch {
+        location.href = 'auth.html?error=oauth_failed';
+      }
+    })();
+  </script>
+</body>
+</html>

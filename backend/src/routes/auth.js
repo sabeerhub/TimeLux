@@ -18,3 +18,28 @@ router.post('/admin/login', adminRateLimiter, validateBody(loginSchema), adminLo
 router.post('/admin/logout', adminLogout);
 
 export default router;
+
+// OAuth token exchange — sets httpOnly cookie from URL token
+router.post('/oauth-callback', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ success: false, error: 'No token' });
+
+    // Verify token is valid
+    const jwt = await import('jsonwebtoken');
+    const decoded = jwt.default.verify(token, process.env.JWT_SECRET);
+
+    // Set proper httpOnly cookie
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ success: true, data: decoded });
+  } catch (err) {
+    res.status(401).json({ success: false, error: 'Invalid token' });
+  }
+});
