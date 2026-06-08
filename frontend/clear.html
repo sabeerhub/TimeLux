@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Clear — TimeLux</title></head>
+<body>
+<script>
+  localStorage.clear();
+  sessionStorage.clear();
+  document.write('<h2>✅ Storage cleared!</h2><p>Redirecting to login...</p>');
+  setTimeout(() => location.href = '/admin/login.html', 1500);
+</script>
+</body>
+</html>
