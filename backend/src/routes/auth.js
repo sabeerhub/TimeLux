@@ -43,3 +43,8 @@ router.post('/oauth-callback', async (req, res) => {
     res.status(401).json({ success: false, error: 'Invalid token' });
   }
 });
+
+// Admin "me" endpoint — accepts admin tokens
+router.get('/admin/me', authenticateAdmin, (req, res) => {
+  res.json({ success: true, data: { ...req.admin, type: 'admin' } });
+});

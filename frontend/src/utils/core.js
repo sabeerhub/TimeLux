@@ -135,7 +135,7 @@ const AuthGuard = {
     const token = Token.getAdmin();
     if (!token) { location.href = '/admin/login.html'; return false; }
     try {
-      const r = await fetch(`${API_BASE}/auth/me`, {
+      const r = await fetch(`${API_BASE}/auth/admin/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!r.ok) { Token.removeAdmin(); location.href = '/admin/login.html'; return false; }
