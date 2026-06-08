@@ -7,7 +7,7 @@ const API_BASE = (typeof window !== 'undefined' && window.API_BASE)
   ? window.API_BASE
   : (window.location.hostname === 'localhost'
       ? 'http://localhost:5000/api'
-      : 'https://your-backend.railway.app/api');
+      : 'https://timelux-production.up.railway.app/api');
 
 /* ─── API HELPER ─────────────────────────────────────── */
 const api = {
