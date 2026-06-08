@@ -4,7 +4,7 @@
 ───────────────────────────────────────────────────────── */
 
 (function () {
-  const PROD_API_URL = 'https://your-backend.railway.app/api';
+  const PROD_API_URL = 'https://timelux-production.up.railway.app/api';
   const DEV_API_URL  = 'http://localhost:5000/api';
 
   const isLocal = window.location.hostname === 'localhost'
