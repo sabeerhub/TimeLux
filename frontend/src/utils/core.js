@@ -66,7 +66,7 @@ const api = {
   async del(path, isAdmin = false) {
     const r = await fetch(`${API_BASE}${path}`, {
       method: 'DELETE',
-      headers: this._headersAuto(path),
+      headers: this._headers(isAdmin),
     });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || 'Request failed');
