@@ -67,6 +67,7 @@ const api = {
   async del(path, isAdmin = false) {
     const r = await fetch(`${API_BASE}${path}`, {
       method: 'DELETE',
+      credentials: 'include',
       headers: this._headers(isAdmin),
     });
     const j = await r.json();
