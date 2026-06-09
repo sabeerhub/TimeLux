@@ -21,7 +21,7 @@ const Token = {
 /* ─── API HELPER ─────────────────────────────────────── */
 const api = {
   _isAdminPath(path) {
-    return path.startsWith('/admin/') || path.includes('/orders/admin/');
+    return path.startsWith('/admin/') || path.includes('/orders/admin/') || window.location.pathname.includes('/admin/');
   },
   _headers(isAdmin = false) {
     const token = isAdmin ? Token.getAdmin() : Token.get();
