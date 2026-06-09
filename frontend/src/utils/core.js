@@ -1,3 +1,4 @@
+// v2
 /* ═══════════════════════════════════════════════════════
    TimeLux — Core JS
    Token stored in localStorage — works cross-domain
