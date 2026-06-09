@@ -26,7 +26,7 @@ export const uploadToSupabase = async (file, folder = 'watches') => {
   const filename = `${folder}/${Date.now()}-${Math.random().toString(36).substr(2,9)}.${ext}`;
 
   const { data, error } = await supabase.storage
-    .from('Watches')
+    .from('watches')
     .upload(filename, file.buffer, {
       contentType: file.mimetype,
       upsert: false,
@@ -35,7 +35,7 @@ export const uploadToSupabase = async (file, folder = 'watches') => {
   if (error) throw new Error(`Storage upload failed: ${error.message}`);
 
   const { data: { publicUrl } } = supabase.storage
-    .from('Watches')
+    .from('watches')
     .getPublicUrl(filename);
 
   return { url: publicUrl, public_id: filename };
@@ -43,7 +43,7 @@ export const uploadToSupabase = async (file, folder = 'watches') => {
 
 export const deleteFromSupabase = async (publicId) => {
   const { error } = await supabase.storage
-    .from('Watches')
+    .from('watches')
     .remove([publicId]);
   if (error) console.error('Delete error:', error.message);
 };
