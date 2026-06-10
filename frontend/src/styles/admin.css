@@ -103,7 +103,7 @@
   padding-bottom:calc(72px + var(--s8));
 }
 @media(min-width:769px){.admin-main{padding-bottom:var(--s8)}}
-@media(max-width:768px){.admin-main{padding:var(--s5) var(--s4);padding-bottom:calc(72px + var(--s5))}}
+@media(max-width:768px){.admin-main{padding:var(--s5) var(--s4);padding-top:calc(var(--nav-h) + var(--s5));padding-bottom:calc(72px + var(--s5))}}
 
 /* ── PAGE HEADER ── */
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s6);flex-wrap:wrap;gap:var(--s4)}
