@@ -40,8 +40,9 @@
         });
 
         if (r.ok) {
-          location.href = redirect;
-        } else {
+  Token.set(token);
+  location.href = redirect;
+}  else {
           location.href = 'auth.html?error=oauth_failed';
         }
       } catch {
