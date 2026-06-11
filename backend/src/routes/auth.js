@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, logout, getMe, adminLogin, adminLogout } from '../controllers/authController.js';
+import { register, login, logout, getMe, updateMe, adminLogin, adminLogout } from '../controllers/authController.js';
 import { authenticate, authenticateAdmin } from '../middleware/auth/jwt.js';
 import { authRateLimiter, adminRateLimiter } from '../middleware/security/rateLimiter.js';
 import { validateBody } from '../middleware/validation/validate.js';
@@ -12,6 +12,7 @@ router.post('/register',     authRateLimiter,  validateBody(registerSchema), reg
 router.post('/login',        authRateLimiter,  validateBody(loginSchema),    login);
 router.post('/logout',       logout);
 router.get('/me',            authenticate,     getMe);
+router.patch('/me',          authenticate,     updateMe);
 
 // Admin auth
 router.post('/admin/login',  adminRateLimiter, validateBody(loginSchema),    adminLogin);

@@ -128,3 +128,15 @@ export const getMe = async (req, res, next) => {
     res.json({ success: true, data: rows[0] });
   } catch (err) { next(err); }
 };
+
+// ─── UPDATE ME ────────────────────────────────────────────
+export const updateMe = async (req, res, next) => {
+  try {
+    const { full_name, phone } = req.body;
+    const { rows: [user] } = await query(
+      'UPDATE customers SET full_name = COALESCE($1, full_name), phone = COALESCE($2, phone), updated_at = NOW() WHERE id = $3 RETURNING id, email, full_name, phone',
+      [full_name || null, phone || null, req.user.id]
+    );
+    res.json({ success: true, data: user });
+  } catch (err) { next(err); }
+};

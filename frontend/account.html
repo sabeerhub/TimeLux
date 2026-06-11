@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="src/styles/apple.css"/>
   <style>
     body{background:var(--bg-secondary)}
-    .page-wrap{padding:var(--s8) 0 calc(var(--bottom-nav-h)+var(--s10));min-height:100dvh}
+    .page-wrap{padding:var(--s8) 0 160px;min-height:100dvh}
     .account-grid{display:grid;grid-template-columns:260px 1fr;gap:var(--s6);align-items:start}
     @media(max-width:768px){.account-grid{grid-template-columns:1fr}}
     .profile-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s6);position:sticky;top:calc(var(--nav-h)+var(--s4))}
@@ -139,7 +139,7 @@
       e.preventDefault();
       const btn = document.getElementById('save-btn');
       btn.classList.add('btn-loading'); btn.disabled=true;
-      try { Toast.show('Profile updated.'); }
+      try { const full_name = document.getElementById('f-name').value.trim(); const phone = document.getElementById('f-phone').value.trim(); await api.patch('/auth/me', { full_name, phone }); Toast.show('Profile updated.'); document.getElementById('profile-name').textContent = full_name; }
       catch(err) { Toast.show(err.message,'error'); }
       finally { btn.classList.remove('btn-loading'); btn.disabled=false; }
     }
