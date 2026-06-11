@@ -13,7 +13,8 @@
     .product-layout{display:grid;grid-template-columns:1fr 1fr;gap:var(--s12);align-items:start}
     @media(max-width:768px){.product-layout{grid-template-columns:1fr;gap:var(--s6)}}
             .gallery{position:sticky;top:calc(var(--nav-h) + var(--s4))}
-@media(max-width:768px){.gallery{position:relative;top:0}}.thumb-row::-webkit-scrollbar{display:none}
+    @media(max-width:768px){.gallery{position:relative;top:0}}
+    .thumb-row::-webkit-scrollbar{display:none}
     .main-img{aspect-ratio:1;background:var(--bg-tertiary);border-radius:var(--r-xl);overflow:hidden;margin-bottom:var(--s3)}
     .main-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
     .main-img:hover img{transform:scale(1.02)}
