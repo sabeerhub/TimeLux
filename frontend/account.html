@@ -139,7 +139,7 @@
       e.preventDefault();
       const btn = document.getElementById('save-btn');
       btn.classList.add('btn-loading'); btn.disabled=true;
-      try { const full_name = document.getElementById('f-name').value.trim(); const phone = document.getElementById('f-phone').value.trim(); await api.patch('/auth/me', { full_name, phone }); Toast.show('Profile updated.'); document.getElementById('profile-name').textContent = full_name; }
+      try { const full_name = document.getElementById('edit-name').value.trim(); const phone = document.getElementById('edit-phone').value.trim(); await api.patch('/auth/me', { full_name, phone }); Toast.show('Profile updated.'); document.getElementById('profile-name').textContent = full_name; }
       catch(err) { Toast.show(err.message,'error'); }
       finally { btn.classList.remove('btn-loading'); btn.disabled=false; }
     }
