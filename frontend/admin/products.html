@@ -106,13 +106,14 @@
         </select>
       </div>
       <div class="form-row">
-        <div class="field"><label class="field-label">Movement</label><input class="field-input" id="f-movement" type="text" placeholder="Automatic"/></div>
+        <div class="field"><label class="field-label">Movement</label><select class="field-input" id="f-movement"><option value="">Select movement</option><option>Automatic</option><option>Manual/Hand-wound</option><option>Quartz</option><option>Solar</option><option>Smartwatch</option><option>Kinetic</option><option>Spring Drive</option></select></div>
         <div class="field"><label class="field-label">Case Size (mm)</label><input class="field-input" id="f-case-size" type="number" placeholder="40" step="0.1"/></div>
       </div>
       <div class="form-row">
         <div class="field"><label class="field-label">Case Material</label><input class="field-input" id="f-material" type="text" placeholder="Rose Gold"/></div>
         <div class="field"><label class="field-label">Water Resistance</label><input class="field-input" id="f-water" type="text" placeholder="120m"/></div>
       </div>
+      <div class="field"><label class="field-label">Colors / Variants <span style="font-weight:400;color:var(--text-tertiary)">(comma separated)</span></label><input class="field-input" id="f-variants" type="text" placeholder="Black, Gold, Rose Gold, Silver"/></div>
       <div class="field">
         <label class="field-label">Description</label>
         <textarea class="field-input" id="f-desc" rows="4" placeholder="Describe the watch…" style="resize:vertical;line-height:1.5"></textarea>
@@ -232,6 +233,7 @@ const DrawerCtrl = {
     document.getElementById('f-movement').value = p.movement_type||'';
     document.getElementById('f-case-size').value = p.case_size_mm||'';
     document.getElementById('f-material').value = p.case_material||'';
+    document.getElementById('f-variants').value = p.variants||'';
     document.getElementById('f-water').value = p.water_resistance||'';
     document.getElementById('f-featured').checked = !!p.is_featured;
     document.getElementById('f-category').value = p.category||'';
@@ -280,6 +282,7 @@ document.getElementById('watch-form').addEventListener('submit', async e => {
       water_resistance: document.getElementById('f-water').value,
       is_featured: document.getElementById('f-featured').checked,
       brand_id: document.getElementById('f-brand').value || null,
+      variants: document.getElementById('f-variants').value.trim() || null,
     };
 
     let result;
