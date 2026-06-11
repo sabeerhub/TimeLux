@@ -58,6 +58,7 @@
         </select>
       </div>
 
+      <div id="featured-section" style="display:none;margin-bottom:var(--s8)"><p style="font-size:var(--text-xs);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:var(--s4)">Featured</p><div class="products-grid" id="featured-grid"></div></div>
       <div class="products-grid" id="products-grid">
         <div class="product-card"><div class="skeleton" style="aspect-ratio:1"></div><div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s2)"><div class="skeleton" style="height:10px;width:50%"></div><div class="skeleton" style="height:16px;width:80%"></div><div class="skeleton" style="height:14px;width:40%"></div></div></div>
 <div class="product-card"><div class="skeleton" style="aspect-ratio:1"></div><div style="padding:var(--s4);display:flex;flex-direction:column;gap:var(--s2)"><div class="skeleton" style="height:10px;width:50%"></div><div class="skeleton" style="height:16px;width:80%"></div><div class="skeleton" style="height:14px;width:40%"></div></div></div>
@@ -83,8 +84,19 @@
       document.getElementById('nav-wrap').innerHTML = Nav.renderAuth();
       document.getElementById('bottom-nav-wrap').innerHTML = Nav.renderBottom('home');
       Cart.updateBadge();
+      await loadFeatured();
       await loadProducts();
     })();
+
+    async function loadFeatured() {
+      try {
+        const featured = await api.get("/products?featured=true&limit=6");
+        if (featured.length) {
+          document.getElementById("featured-section").style.display = "block";
+          document.getElementById("featured-grid").innerHTML = featured.map((p,i) => renderProductCard(p,i)).join("");
+        }
+      } catch {}
+    }
 
     async function loadProducts() {
       const [col, dir] = activeSort.split(':');
@@ -98,6 +110,12 @@
         document.getElementById('products-grid').innerHTML =
           `<div class="empty-state"><h3>Failed to load</h3><p style="color:var(--text-secondary)">${err.message}</p></div>`;
       }
+    }
+
+    function renderProductCard(p,i) {
+      const img = p.images?.[0]?.url;
+      const soldOut = p.stock_qty === 0;
+      return `<div class="product-card animate-fade-up" style="animation-delay:${i*.05}s" onclick="location.href='product.html?slug=${p.slug}'"><div class="product-img-wrap">${img ? `<img src="${img}" alt="${p.name}" loading="lazy"/>` : `<div class="product-img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>`}${soldOut ? `<div class="sold-out-tag"><span class="badge badge-neutral">Sold Out</span></div>` : ""}</div><div class="product-body"><p class="product-brand">${p.brand_name||""}</p><p class="product-name">${p.name}</p><p class="product-price">${fmt.naira(p.price)}</p></div></div>`;
     }
 
     function renderProducts(list) {
