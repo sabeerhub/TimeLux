@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="src/styles/apple.css"/>
   <style>
     body{background:var(--bg)}
-    .page-wrap{padding:var(--s6) 0 calc(var(--bottom-nav-h) + var(--s10))}
+    .page-wrap{padding:var(--s6) 0 calc(var(--bottom-nav-h) + var(--s10));overflow-x:hidden;max-width:100vw}
     .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-sm);color:var(--accent);margin-bottom:var(--s6)}
     .back-btn:hover{opacity:.75}
     .product-layout{display:grid;grid-template-columns:1fr 1fr;gap:var(--s12);align-items:start}
@@ -15,7 +15,7 @@
             .gallery{position:sticky;top:calc(var(--nav-h) + var(--s4))}
     @media(max-width:768px){.gallery{position:relative;top:0}}
     .thumb-row::-webkit-scrollbar{display:none}
-    .main-img{aspect-ratio:1;background:var(--bg-tertiary);border-radius:var(--r-xl);overflow:hidden;margin-bottom:var(--s3)}
+    body{overflow-x:hidden}.main-img{aspect-ratio:1;background:var(--bg-tertiary);border-radius:var(--r-xl);overflow:hidden;margin-bottom:var(--s3)}
     .main-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
     .main-img:hover img{transform:scale(1.02)}
     .thumb-row{display:flex;gap:var(--s2);overflow-x:auto;padding-bottom:4px;padding-right:var(--s4);scrollbar-width:none;-ms-overflow-style:none}
