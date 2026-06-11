@@ -5,7 +5,7 @@ const KORAPAY_BASE = process.env.KORAPAY_BASE_URL || 'https://api.korapay.com/me
 // ─── INITIATE PAYMENT ─────────────────────────────────────
 export const initiateKorapayPayment = async ({
   amount, currency = 'NGN', reference,
-  customer, redirect_url, cancel_url,
+  customer, redirect_url,
 }) => {
   const body = {
     amount,
@@ -15,7 +15,7 @@ export const initiateKorapayPayment = async ({
     redirect_url,
     notification_url: `${process.env.BACKEND_URL}/api/webhooks/korapay`,
   };
-  if (cancel_url) body.cancel_url = cancel_url;
+  
 
   const response = await fetch(`${KORAPAY_BASE}/charges/initialize`, {
     method: 'POST',

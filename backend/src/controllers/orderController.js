@@ -93,7 +93,7 @@ export const createOrder = async (req, res, next) => {
       reference:    order.order_ref,
       customer:     { name: order.customer_name, email: order.customer_email },
       redirect_url: `${process.env.FRONTEND_URL}/payment-success.html?ref=${order.order_ref}`,
-      cancel_url:   `${process.env.FRONTEND_URL}/payment-failed.html?ref=${order.order_ref}`,
+      
     });
 
     // 6. Save payment reference
@@ -266,7 +266,7 @@ export const retryPayment = async (req, res, next) => {
       reference:    newRef,
       customer:     { name: order.customer_name, email: order.customer_email },
       redirect_url: `${process.env.FRONTEND_URL}/payment-success.html?ref=${order.order_ref}`,
-      cancel_url:   `${process.env.FRONTEND_URL}/payment-failed.html?ref=${order.order_ref}`,
+      
     });
 
     res.json({
