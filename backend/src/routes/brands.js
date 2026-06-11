@@ -13,4 +13,16 @@ router.get('/', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// POST create brand (admin)
+router.post('/', async (req, res, next) => {
+  try {
+    const { name, slug } = req.body;
+    const { rows: [brand] } = await query(
+      'INSERT INTO brands (name, slug) VALUES ($1, $2) RETURNING *',
+      [name, slug]
+    );
+    res.json({ success: true, data: brand });
+  } catch (err) { next(err); }
+});
+
 export default router;
