@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow"/>
   <link rel="stylesheet" href="../src/styles/apple.css"/>
   <link rel="stylesheet" href="../src/styles/admin.css"/>
-</head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/></head>
 <body style="background:var(--bg-secondary)">
 
 <div class="admin-layout">
@@ -58,7 +58,7 @@ let allCustomers = [];
   if (!ok) return;
   document.getElementById('layout-shell').outerHTML = AdminLayout.render('customers');
   try {
-    allCustomers = await api.get('/admin/customers?limit=200');
+    allCustomers = await api.get('/admin/customers?limit=200', true);
     document.getElementById('customer-count').textContent = `${allCustomers.length} total`;
     renderTable(allCustomers);
   } catch(err) { Toast.show(err.message,'error'); }
