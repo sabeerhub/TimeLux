@@ -155,7 +155,7 @@
         location.href = `${window.API_BASE}/auth/google?redirect=${encodeURIComponent(redirectTo)}`;
       },
       apple() {
-        Toast.show('Redirecting to Apple…');
+        Toast.show('Apple Sign In is unavailable. Please use Email or Google.', 'error'); return;
         location.href = `${window.API_BASE}/auth/apple?redirect=${encodeURIComponent(redirectTo)}`;
       }
     };
