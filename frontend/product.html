@@ -108,7 +108,7 @@
 
       document.getElementById('product-content').innerHTML = `
       <div class="product-layout">
-        <div class="gallery animate-fade-up">
+        <div class="gallery animate-fade-up" style="width:100%;max-width:100%;overflow:hidden">
           <div class="main-img">
             ${images[0]
               ? `<img src="${images[0].url}" alt="${product.name}" id="main-img-el"/>`
